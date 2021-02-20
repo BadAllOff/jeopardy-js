@@ -6,8 +6,8 @@ async function getCategories(count, offset) {
   return data;
 }
 
-function getClueHtml(clueValue) {
-  return `<div class="my-category-clue" style="grid-row-start: ${
+function getClueHtml(clueValue, categoryId) {
+  return `<div class="my-category-clue" data-cluevalue=${clueValue} data-categoryId=${categoryId} style="grid-row-start: ${
     clueValue / 100 + 1
   }">$${clueValue}</div>`;
 }
@@ -15,14 +15,19 @@ function getClueHtml(clueValue) {
 function getCategoryHtml(category) {
   return `
         <div class="my-category-title">${category.title}</div>
-        ${getClueHtml(100)}
-        ${getClueHtml(200)}
-        ${getClueHtml(300)}
-        ${getClueHtml(400)}
+        ${getClueHtml(100, category.id)}
+        ${getClueHtml(200, category.id)}
+        ${getClueHtml(300, category.id)}
+        ${getClueHtml(400, category.id)}
     `;
 }
 
-function openModal(question, answer) {
+async function openModal(clue) {
+  let value = clue.dataset.cluevalue;
+  let categoryId = clue.dataset.categoryid;
+  let question;
+  let answer;
+
   const modalOverlay = document.querySelector(".modal-overlay");
   const modal = document.querySelector(".modal");
   const questionParagraph = document.querySelector(".question");
@@ -30,10 +35,31 @@ function openModal(question, answer) {
   const closeModal = document.getElementById("close-modal");
   const showAnswer = document.getElementById("show-answer");
 
+  let response = await fetch(
+    `https://jservice.io/api/clues?value=${value}&category=${categoryId}`
+  );
+  let data = await response.json();
+
+  if (Array.isArray(data) && !data.length) {
+    question = `Sorry, it seems like server doesn't have a question for this value and category`;
+  } else {
+    question = data[0].question;
+    answer = data[0].answer;
+  }
+
+  questionParagraph.innerText = question;
+  answerParagraph.innerText = answer;
+
   modalOverlay.style.display = "flex";
-  modal.addEventListener("click", (e) => {
-      e.stopImmediatePropagation()
-  });
+
+  if (!answer) {
+    showAnswer.style.display = "none";
+  } else {
+    showAnswer.style.display = "inline";
+    showAnswer.addEventListener("click", () => {
+      answerParagraph.style.display = "block";
+    });
+  }
 
   modalOverlay.addEventListener("click", () => {
     answerParagraph.style.display = "none";
@@ -45,8 +71,8 @@ function openModal(question, answer) {
     modalOverlay.style.display = "none";
   });
 
-  showAnswer.addEventListener("click", () => {
-    answerParagraph.style.display = "block";
+  modal.addEventListener("click", (e) => {
+    e.stopImmediatePropagation();
   });
 }
 
@@ -69,7 +95,9 @@ async function buildGame() {
   const clues = document.querySelectorAll(".my-category-clue");
 
   clues.forEach((clue) => {
-    clue.addEventListener("click", () => openModal());
+    clue.addEventListener("click", (e) => {
+      openModal(e.target);
+    });
   });
 }
 
