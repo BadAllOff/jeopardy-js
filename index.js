@@ -77,7 +77,7 @@ async function openModal(clue) {
 }
 
 async function buildGame() {
-  const categories = await getCategories(5);
+  const categories = await getCategories(10,10);
   document.body.innerHTML = `<div class="board">
         ${categories.map(getCategoryHtml).join("")}
     </div>
