@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;700&display=swap');
+
 html, body {
     margin: 0;
     padding: 0;
@@ -16,7 +18,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: 1rem;
     text-align: center;
 } 
 
@@ -24,8 +26,12 @@ html, body {
     background-color: lightblue;
     grid-row-start: 1;
     text-transform: uppercase;
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
 }
 
 .my-category-clue {
     font-size: 2rem;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
 }
